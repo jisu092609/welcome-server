@@ -3,71 +3,103 @@ const Canvas = require("canvas");
 
 const app = express();
 
-// 폰트 등록
-Canvas.registerFont("./assets/SUIT-Bold.ttf", { family: "SUITB" });
 Canvas.registerFont("./assets/SUIT-Regular.ttf", { family: "SUIT" });
+Canvas.registerFont("./assets/SUIT-Bold.ttf", { family: "SUITB" });
 
 app.get("/welcome", async (req, res) => {
   try {
     const username = req.query.username || "USER";
-    const avatar = req.query.avatar || "";
+    const avatarUrl = req.query.avatar;
 
     const canvas = Canvas.createCanvas(1600, 800);
     const ctx = canvas.getContext("2d");
 
     // 배경
-    const bg = await Canvas.loadImage("./assets/Background.png");
-    ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+    const background = await Canvas.loadImage("./assets/background.png");
+    ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    // 프레임
+    // 프레임 (🔥 핵심)
     const frame = await Canvas.loadImage("./assets/frame.png");
-    ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+
+    const frameWidth = 1500;
+    const frameHeight = 650;
+
+    const frameX = (canvas.width - frameWidth) / 2;
+    const frameY = (canvas.height - frameHeight) / 2 + 40;
+
+    ctx.drawImage(frame, frameX, frameY, frameWidth, frameHeight);
 
     // 로고
     const logo = await Canvas.loadImage("./assets/logo.png");
-    ctx.drawImage(logo, 600, 30, 400, 150);
+
+    ctx.drawImage(
+      logo,
+      canvas.width / 2 - 180,
+      frameY - 110,
+      360,
+      180
+    );
 
     // 아바타
-    const avatarImg = await Canvas.loadImage(avatar);
+    const avatar = await Canvas.loadImage(avatarUrl);
 
+    const avatarSize = 230;
+    const avatarX = frameX + 340;
+    const avatarY = frameY + frameHeight / 2;
+
+    // 네온 테두리
+    ctx.beginPath();
+    ctx.arc(avatarX, avatarY, avatarSize / 2 + 8, 0, Math.PI * 2);
+    ctx.strokeStyle = "#9c6cff";
+    ctx.lineWidth = 6;
+    ctx.shadowColor = "#9c6cff";
+    ctx.shadowBlur = 20;
+    ctx.stroke();
+
+    // 아바타
     ctx.save();
     ctx.beginPath();
-    ctx.arc(350, 400, 120, 0, Math.PI * 2, true);
+    ctx.arc(avatarX, avatarY, avatarSize / 2, 0, Math.PI * 2);
     ctx.closePath();
     ctx.clip();
 
-    ctx.drawImage(avatarImg, 230, 280, 240, 240);
+    ctx.drawImage(
+      avatar,
+      avatarX - avatarSize / 2,
+      avatarY - avatarSize / 2,
+      avatarSize,
+      avatarSize
+    );
+
     ctx.restore();
 
-    // 아바타 테두리
-    ctx.beginPath();
-    ctx.arc(350, 400, 130, 0, Math.PI * 2);
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 6;
-    ctx.stroke();
-
     // 텍스트
+    ctx.shadowColor = "rgba(0,0,0,0.9)";
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 3;
+
+    const textX = avatarX + 250;
+    const textY = avatarY - 100;
+
+    ctx.font = "56px SUITB";
     ctx.fillStyle = "#ffffff";
+    ctx.strokeStyle = "rgba(0,0,0,0.6)";
+    ctx.lineWidth = 2;
 
-    // 닉네임
-    ctx.font = "bold 60px SUITB";
-    ctx.fillText(`${username}님 안녕하세요!`, 600, 350);
+    ctx.strokeText(`${username}님 안녕하세요!`, textX, textY);
+    ctx.fillText(`${username}님 안녕하세요!`, textX, textY);
 
-    // 서브텍스트
-    ctx.font = "40px SUIT";
-    ctx.fillText("707 서버에 오신걸 환영합니다", 600, 420);
+    ctx.font = "40px SUITB";
+    ctx.strokeText("707 서버에 오신걸 환영합니다", textX, textY + 70);
+    ctx.fillText("707 서버에 오신걸 환영합니다", textX, textY + 70);
 
-    // 정보 텍스트
-    ctx.font = "30px SUIT";
+    ctx.font = "30px SUITB";
+    ctx.fillStyle = "#f5f5ff";
 
-    const userId = Math.floor(Math.random() * 999999999999999999); // 임시 (봇에서 넣어도됨)
-    const today = new Date().toLocaleDateString();
+    ctx.fillText(`ID : TEST_ID`, textX, textY + 150);
+    ctx.fillText(`Discord 가입 : TEST`, textX, textY + 190);
+    ctx.fillText(`서버 가입 : TEST`, textX, textY + 230);
 
-    ctx.fillText(`ID : ${userId}`, 600, 500);
-    ctx.fillText(`Discord 가입 : ${today}`, 600, 550);
-    ctx.fillText(`서버 가입 : ${today}`, 600, 600);
-
-    // 출력
     res.setHeader("Content-Type", "image/png");
     res.send(canvas.toBuffer());
 
