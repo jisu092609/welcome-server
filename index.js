@@ -13,7 +13,7 @@ app.get("/welcome", async (req, res) => {
     const canvas = Canvas.createCanvas(1600, 800);
     const ctx = canvas.getContext("2d");
 
-    const bg = await Canvas.loadImage("./assets/background.png");
+    const bg = await Canvas.loadImage("./assets/Background.png");
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
 
     const avatarImg = await Canvas.loadImage(avatar);
