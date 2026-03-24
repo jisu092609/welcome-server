@@ -15,7 +15,7 @@ app.get("/welcome", async (req, res) => {
     const ctx = canvas.getContext("2d");
 
     // 배경
-    const background = await Canvas.loadImage("./assets/background.png");
+    const background = await Canvas.loadImage("./assets/Background.png");
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
     // 프레임 (🔥 핵심)
