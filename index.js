@@ -11,6 +11,11 @@ app.get("/welcome", async (req, res) => {
     const username = req.query.username || "USER";
     const avatarUrl = req.query.avatar;
 
+    // 🔥 추가 (실제 데이터 받기)
+    const userId = req.query.id || "UNKNOWN";
+    const createdAt = req.query.created || "UNKNOWN";
+    const joinedAt = req.query.joined || "UNKNOWN";
+
     const canvas = Canvas.createCanvas(1600, 800);
     const ctx = canvas.getContext("2d");
 
@@ -18,7 +23,7 @@ app.get("/welcome", async (req, res) => {
     const background = await Canvas.loadImage("./assets/Background.png");
     ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    // 프레임 (🔥 핵심)
+    // 프레임
     const frame = await Canvas.loadImage("./assets/frame.png");
 
     const frameWidth = 1500;
@@ -73,7 +78,7 @@ app.get("/welcome", async (req, res) => {
 
     ctx.restore();
 
-    // 텍스트
+    // 텍스트 효과
     ctx.shadowColor = "rgba(0,0,0,0.9)";
     ctx.shadowBlur = 18;
     ctx.shadowOffsetY = 3;
@@ -81,6 +86,7 @@ app.get("/welcome", async (req, res) => {
     const textX = avatarX + 250;
     const textY = avatarY - 100;
 
+    // 닉네임
     ctx.font = "56px SUITB";
     ctx.fillStyle = "#ffffff";
     ctx.strokeStyle = "rgba(0,0,0,0.6)";
@@ -89,16 +95,18 @@ app.get("/welcome", async (req, res) => {
     ctx.strokeText(`${username}님 안녕하세요!`, textX, textY);
     ctx.fillText(`${username}님 안녕하세요!`, textX, textY);
 
+    // 서브텍스트
     ctx.font = "40px SUITB";
     ctx.strokeText("707 서버에 오신걸 환영합니다", textX, textY + 70);
     ctx.fillText("707 서버에 오신걸 환영합니다", textX, textY + 70);
 
+    // 정보 텍스트
     ctx.font = "30px SUITB";
     ctx.fillStyle = "#f5f5ff";
 
-    ctx.fillText(`ID : TEST_ID`, textX, textY + 150);
-    ctx.fillText(`Discord 가입 : TEST`, textX, textY + 190);
-    ctx.fillText(`서버 가입 : TEST`, textX, textY + 230);
+    ctx.fillText(`ID : ${userId}`, textX, textY + 150);
+    ctx.fillText(`Discord 가입 : ${createdAt}`, textX, textY + 190);
+    ctx.fillText(`서버 가입 : ${joinedAt}`, textX, textY + 230);
 
     res.setHeader("Content-Type", "image/png");
     res.send(canvas.toBuffer());
